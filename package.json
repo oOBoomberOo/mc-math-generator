@@ -1,7 +1,7 @@
 {
   "name": "mc-math-generator",
   "displayName": "MC Math Expression Generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate scoreboard operation from math expression",
   "main": "./src/extension.js",
   "engines": {
