@@ -25,9 +25,9 @@ function mathExpression(expression, scoreboard, callback) {
 	};
 	let varableRegex = /[A-z@=,.#\s\d]+/g;
 	let operatorRegex = /[\+\-\*\/\%]/g;
-	let numberTestRegex = /\d/g;
 	scoreboard = scoreboard == false ? ['obj1', 'obj2']: scoreboard.replace(/\s/g, '').split(',');
 	scoreboard = scoreboard.length === 1 ? [...scoreboard, ...scoreboard]: scoreboard;
+	scoreboard = scoreboard.length > 2 ? [scoreboard[0], scoreboard[1]]: scoreboard;
 
 	expression = expression.replace(/\s/g, '');
 	let variable = expression.match(varableRegex);

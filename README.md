@@ -3,11 +3,13 @@ This extension provide a way to generate long and confusing `/scoreboard operati
 
 ## Feature
 Generate `/scoreboard operation` command from math expression such as `1+2*3`.  
-Do note that currently this extension does not use parentheses `()` it's always read expression from left to right.  
+Do note that currently this extension always read expression from left to right not the usual PEMDAS convention.  
+![](https://media.giphy.com/media/8ZeZuDDCClGOBWakch/giphy.gif)  
 You can also use minecraft selector in the expression, E.g. `@e[tag=foo] * 12`
+![](https://media.giphy.com/media/cQ7bpYQ9iyxaFBjGHq/giphy.gif)  
 
 ## Planed Features
-- Parentheses support
+- PEMDAS convention
 
 ## Release Notes
 
