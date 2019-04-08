@@ -1,35 +1,50 @@
 {
-	"name": "mc-math-generator",
-	"displayName": "mc-math-generator",
-	"description": "Generate scoreboard operation from math expression",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.33.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.mc-math.insert"
-	],
-	"main": "./src/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "extension.mc-math.insert",
-				"title": "Insert math expression"
-			}
-		]
-	},
-	"scripts": {
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "node ./node_modules/vscode/bin/test"
-	},
-	"devDependencies": {
+  "name": "mc-math-generator",
+  "displayName": "MC Math Expression Generator",
+  "version": "1.0.0",
+  "description": "Generate scoreboard operation from math expression",
+  "main": "./src/extension.js",
+  "engines": {
+    "vscode": "^1.33.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.mc-math.insert"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.mc-math.insert",
+        "title": "Insert math expression"
+      }
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
 		"typescript": "^3.3.1",
 		"vscode": "^1.1.28",
 		"eslint": "^5.13.0",
 		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42"
-	}
+    "@types/mocha": "^2.2.42"
+  },
+  "scripts": {
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "node ./node_modules/vscode/bin/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oOBoomberOo/mc-math-generator.git"
+  },
+  "author": "Boomber",
+  "publisher": "Boomber",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/oOBoomberOo/mc-math-generator/issues"
+  },
+  "homepage": "https://github.com/oOBoomberOo/mc-math-generator#readme"
 }
