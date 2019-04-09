@@ -8,6 +8,9 @@ Do note that currently this extension always read expression from left to right 
 You can also use minecraft selector in the expression, E.g. `@e[tag=foo] * 12`  
 ![](https://media.giphy.com/media/cQ7bpYQ9iyxaFBjGHq/giphy.gif)  
 
+## Configuration
+To change default scoreboard objective, set `mc-math.default_scoreboard:[]` to `['<objective_1>', '<objective_2>']`
+
 ## Installation
 [VScode extension](https://marketplace.visualstudio.com/items?itemName=Boomber.mc-math-generator&ssr=false#overview)
 

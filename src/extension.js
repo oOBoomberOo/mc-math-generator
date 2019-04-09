@@ -80,16 +80,27 @@ function determineOperator(operator, variable) {
 }
 
 exports.activate = function(context) {
-
-	const config = vscode.workspace.getConfiguration().get('mc-math.default_scoreboard');
+	let config = vscode.workspace.getConfiguration().get('mc-math.default_scoreboard');
 	try {
 		settings.scoreboard1 = config[0];
 		settings.scoreboard2 = config[1];
 	} catch (error) {
-		vscode.window.showErrorMessage(error.message);
+		settings.scoreboard1 = 'obj1';
+		settings.scoreboard2 = 'obj2';
 	}
 
-	let disposable = vscode.commands.registerTextEditorCommand('extension.mc-math.insert', async (textEditor, edit, args) => {
+	let disposable = [];
+	disposable.push(vscode.workspace.onDidChangeConfiguration(event => {
+		config = vscode.workspace.getConfiguration().get('mc-math.default_scoreboard');
+		try {
+			settings.scoreboard1 = config[0];
+			settings.scoreboard2 = config[1];
+		} catch (error) {
+			vscode.window.showErrorMessage(error.message);
+		}
+	}));
+
+	disposable.push(vscode.commands.registerTextEditorCommand('extension.mc-math.insert', async (textEditor, edit, args) => {
 		let expression;
 		let scoreboard;
 		await vscode.window.showInputBox({
@@ -119,9 +130,9 @@ exports.activate = function(context) {
 			}
 		});
 
-	});
+	}));
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(...disposable);
 }
 
 // this method is called when your extension is deactivated
