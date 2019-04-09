@@ -13,10 +13,3 @@ You can also use minecraft selector in the expression, E.g. `@e[tag=foo] * 12`
 
 ## Planed Features
 - PEMDAS convention
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-Initial release of MC-math-generator

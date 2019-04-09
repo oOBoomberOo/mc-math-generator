@@ -1,11 +1,11 @@
 {
   "name": "mc-math-generator",
   "displayName": "MC Math Expression Generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generate scoreboard operation from math expression",
   "main": "./src/extension.js",
   "engines": {
-    "vscode": "^1.33.0"
+    "vscode": "^1.0.0"
   },
   "categories": [
     "Other"
@@ -16,6 +16,10 @@
   "directories": {
     "test": "test"
   },
+  "keywords": [
+    "minecraft",
+    "scoreboard"
+  ],
   "contributes": {
     "commands": [
       {
@@ -26,15 +30,15 @@
   },
   "dependencies": {},
   "devDependencies": {
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28",
-		"eslint": "^5.13.0",
-		"@types/node": "^10.12.21",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28",
+    "eslint": "^5.13.0",
+    "@types/node": "^10.12.21",
     "@types/mocha": "^2.2.42"
   },
   "scripts": {
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "node ./node_modules/vscode/bin/test"
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
   },
   "repository": {
     "type": "git",

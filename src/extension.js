@@ -9,6 +9,8 @@ const vscode = require('vscode');
  * @param {vscode.ExtensionContext} context
  */
 
+let settings = {'scoreboard1': 'obj1', 'scoreboard2': 'obj2'}
+
 function mathExpression(expression, scoreboard, callback) {
 	let template = {
 		normal: {
@@ -23,14 +25,14 @@ function mathExpression(expression, scoreboard, callback) {
 			'%': 'scoreboard players operation <selector1> <scoreboard1> %= <selector2> <scoreboard2>'
 		}
 	};
-	let varableRegex = /[A-z@=,.#\s\d]+/g;
+	let variableRegex = /[A-z@=,.#\s\d]+/g;
 	let operatorRegex = /[\+\-\*\/\%]/g;
-	scoreboard = scoreboard == false ? ['obj1', 'obj2']: scoreboard.replace(/\s/g, '').split(',');
-	scoreboard = scoreboard.length === 1 ? [...scoreboard, ...scoreboard]: scoreboard;
+	scoreboard = scoreboard == false ? [settings['scoreboard1'], settings['scoreboard2']]: scoreboard.replace(/\s/g, '').split(',');
+	scoreboard = scoreboard.length === 1 ? [scoreboard[0], scoreboard[0]]: scoreboard;
 	scoreboard = scoreboard.length > 2 ? [scoreboard[0], scoreboard[1]]: scoreboard;
 
 	expression = expression.replace(/\s/g, '');
-	let variable = expression.match(varableRegex);
+	let variable = expression.match(variableRegex);
 	let operator = expression.match(operatorRegex);
 	let mainSelector = variable[0];
 	let result = [];
@@ -78,6 +80,14 @@ function determineOperator(operator, variable) {
 }
 
 exports.activate = function(context) {
+
+	const config = vscode.workspace.getConfiguration().get('mc-math.default_scoreboard');
+	try {
+		settings.scoreboard1 = config[0];
+		settings.scoreboard2 = config[1];
+	} catch (error) {
+		vscode.window.showErrorMessage(error.message);
+	}
 
 	let disposable = vscode.commands.registerTextEditorCommand('extension.mc-math.insert', async (textEditor, edit, args) => {
 		let expression;
