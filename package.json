@@ -1,7 +1,7 @@
 {
   "name": "mc-math-generator",
   "displayName": "MC Math Expression Generator",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Generate scoreboard operation from math expression",
   "main": "./src/extension.js",
   "engines": {
@@ -26,7 +26,28 @@
         "command": "extension.mc-math.insert",
         "title": "Insert math expression"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "MC Math Expression Generator",
+      "properties": {
+        "mc-math.exponent_limit": {
+          "type": "integer",
+          "default": 10,
+          "description": "Maximum exponent limit of \"^\" operator"
+        },
+        "mc-math.default_scoreboard_1": {
+          "type": "string",
+          "default": "obj1",
+          "description": "First default scoreboard objective if no objective is provided"
+        },
+        "mc-math.default_scoreboard_2": {
+          "type": "string",
+          "default": "obj2",
+          "description": "Second default scoreboard objective if no objective is provided"
+        }
+      }
+    }
   },
   "dependencies": {},
   "devDependencies": {
