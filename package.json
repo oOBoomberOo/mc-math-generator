@@ -1,7 +1,7 @@
 {
   "name": "mc-math-generator",
   "displayName": "MC Math Expression Generator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Generate scoreboard operation from math expression",
   "main": "./src/extension.js",
   "engines": {
@@ -11,7 +11,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.mc-math.insert"
+    "onCommand:extension.mc-math.insert",
+    "onCommand:extension.mc-math.eval"
   ],
   "directories": {
     "test": "test"
@@ -25,6 +26,10 @@
       {
         "command": "extension.mc-math.insert",
         "title": "Insert math expression"
+      },
+      {
+        "command": "extension.mc-math.eval",
+        "title": "Evaluate math expression"
       }
     ],
     "configuration": {
@@ -49,7 +54,9 @@
       }
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "mathjs": "^5.9.0"
+  },
   "devDependencies": {
     "typescript": "^3.3.1",
     "vscode": "^1.1.28",

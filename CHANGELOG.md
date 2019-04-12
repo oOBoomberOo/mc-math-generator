@@ -1,3 +1,6 @@
+## 1.1.1
+Added Expression Evaluator
+
 ## 1.1.0
 Added proper configuration for default scoreboard  
 Added `^` (exponential) operator  

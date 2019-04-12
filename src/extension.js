@@ -1,216 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const math = require('mathjs');
+const instExp = require('./insert_expression');
+const evalExp = require('./evaluate_expression');
 
 let settings = {'scoreboard1': 'obj1', 'scoreboard2': 'obj2', 'exponent_limit': 10};
-let error_message = {
-	'invalid': 'Invalid Expression',
-	'operator': {
-		'^': {
-			'not_integer': 'String after "^" operator have to be integer',
-			'too_big': 'Exponent is too big'
-		}
-	}
-};
-
-function mathExpression(expression, scoreboard, callback) {
-	let template = {
-		normal: {
-			'+': ['scoreboard players add <selector> <scoreboard> <value>'],
-			'-': ['scoreboard players remove <selector> <scoreboard> <value>']
-		},
-		operation: {
-			'+': ['scoreboard players operation <selector1> <scoreboard1> += <selector2> <scoreboard2>'],
-			'-': ['scoreboard players operation <selector1> <scoreboard1> -= <selector2> <scoreboard2>'],
-			'*': ['scoreboard players operation <selector1> <scoreboard1> *= <selector2> <scoreboard2>'],
-			'/': ['scoreboard players operation <selector1> <scoreboard1> /= <selector2> <scoreboard2>'],
-			'%': ['scoreboard players operation <selector1> <scoreboard1> %= <selector2> <scoreboard2>']
-		},
-		special: {
-			'^': [
-				'scoreboard players operation <selector1> <scoreboard2> = <selector1> <scoreboard1>',
-				'scoreboard players operation <selector1> <scoreboard1> *= <selector1> <scoreboard2>'
-			]
-		}
-	};
-	scoreboard = scoreboard == false ? [settings['scoreboard1'], settings['scoreboard2']]: scoreboard.replace(/\s/g, '').split(',');
-	scoreboard = scoreboard.length === 1 ? [scoreboard[0], scoreboard[0]]: scoreboard;
-	scoreboard = scoreboard.length > 2 ? [scoreboard[0], scoreboard[1]]: scoreboard;
-
-	expression = assertEquation(expression);
-	let variable = expression[0];
-	let operator = expression[1];
-	let main_selector = variable[0];
-	let result = [];
-	if (variable.length >= 1) {
-		variable = variable.slice(1, variable.length);
-		if (variable.length <= operator.length) {
-			for (let i = 0; i < variable.length; i++) {
-				let current_variable = variable[i];
-				let current_operator = operator[i];
-
-				let current_operation = determineOperator(current_operator, current_variable);
-				if (template[current_operation.type] && template[current_operation.type][current_operation.operation]) {
-					let generated = template[current_operation.type][current_operation.operation];
-					switch (current_operation.type) {
-						case 'special': 
-							switch(current_operation.operation) {
-								case '^':
-									if (/\d+/g.test(current_variable)) {
-										let parsedNum = parseInt(current_variable);
-										if (0 < parsedNum && parsedNum <= settings.exponent_limit) {
-											let setup = generated[0];
-											let line = generated[1];
-											result.push(formatScoreboard(setup, main_selector, current_variable, scoreboard));
-											for (let j = 1; j < parsedNum; j++) {
-												result.push(formatScoreboard(line, main_selector, current_variable, scoreboard));
-											}
-										}
-										else {
-											return callback(null, {message: error_message.operator["^"].too_big});
-										}
-									}
-									else {
-										return callback(null, {message: error_message.operator["^"].not_integer});
-									}
-									break;
-								default:
-									return callback(null, {message: error_message.invalid});
-							}
-							break;
-						default:
-							for (let line of generated) {
-								result.push(formatScoreboard(line, main_selector, current_variable, scoreboard));
-							}
-					}	
-				}
-				else {
-					return callback(null, {message: error_message.invalid});
-				}
-			}
-			return callback(result, null);
-		}
-		else {
-			return callback(null, {message: error_message.invalid});
-		}
-	}
-	else {
-		return callback(null, {message: error_message.invalid});
-	}
-}
-
-function formatScoreboard(string, main_selector, current_variable, scoreboard) {
-	return string.replace(/<selector>/g, main_selector)
-	.replace(/<selector1>/g, main_selector)
-	.replace(/<selector2>/g, current_variable)
-	.replace(/<value>/g, current_variable)
-	.replace(/<scoreboard>/g, scoreboard[0])
-	.replace(/<scoreboard1>/g, scoreboard[0])
-	.replace(/<scoreboard2>/g, scoreboard[1]);
-}
-
-/*
- * Convert math expression into usable array of variable and operator
- * @return [[array of variable], [array of operator]]
-*/
-function assertEquation(equation) {
-	let brackets = ['[', ']', '{', '}', '(', ')'];
-	let quotes = ['"', "'"];
-	let bracketTable = {
-		'[': ']',
-		'{': '}',
-		'(': ')',
-		']': '[',
-		'}': '{',
-		')': '('
-	}
-	let operatorRegex = /[\+\-\*\/\%\^]/;
-	let buffer = '';
-	let indent = '';
-	let quote = '';
-	let breakpoint = false;
-	let mode = 'string';
-	let result = [[], []];
-	for (let i = 0; i < equation.length; i++) {
-		breakpoint = false;
-		let char = equation[i];
-		if (!breakpoint) {
-			if (char === '\\') {
-				breakpoint = true;
-			}
-			else if (quotes.includes(char)) {
-				if (char === quote[quote.length - 1]) {
-					quote = quote.length === 1 ? '': quote.substring(0, quote.length);
-				}
-				else {
-					quote += char;
-				}
-			}
-			else if (brackets.includes(char)) {
-				if (bracketTable[char] === indent[indent.length - 1]) {
-					indent = indent.length === 1 ? '': indent.substring(0, indent.length);
-				}
-				else {
-					indent += char;
-				}
-			}
-		}
-
-		if (!quote && !breakpoint && !indent) {
-			let regResult = operatorRegex.test(char);
-			if (char === ' ') { 
-				char = '';
-			}
-			if (mode === 'string') {
-				if (regResult) {
-					result[0].push(buffer);
-					buffer = '';
-					mode = 'operator';
-				}
-			}
-			else if (mode === 'operator') {
-				if (!regResult) {
-					result[1].push(buffer);
-					buffer = '';
-					mode = 'string';
-				}
-			}
-		}
-		buffer += char;
-		if (equation.length === i + 1) {
-			if (mode === 'string') {
-				result[0].push(buffer);
-				buffer = '';
-				mode = 'operator';
-			}
-			else if (mode === 'operator') {
-				result[1].push(buffer);
-				buffer = '';
-				mode = 'string';
-			}
-		}
-		
-	}
-	return result;
-}
-
-function determineOperator(operator, variable) {
-	let numberTestRegex = /\d/g;
-	let operationRegex = /[\+\-\*\/\%]/g;
-	let specials = ['^'];
-	if (numberTestRegex.test(variable) && /[\+\-]/g.test(operator)) {
-		return {type: 'normal', operation: operator};
-	}
-	else if (operationRegex.test(operator)) {
-		return {type: 'operation', operation: operator};
-	}
-	else if (specials.includes(operator)) {
-		return {type: 'special', operation: operator};
-	}
-	else {
-		return null;
-	}
-}
 
 exports.activate = function(context) {
 	let disposable = [];
@@ -228,7 +23,6 @@ exports.activate = function(context) {
 			placeHolder: 'E.g. @s + 5 - 3'
 		}).then(value => {
 			expression = value;
-			
 		});
 		await vscode.window.showInputBox({
 			prompt: 'Scoreboard objective, Use comma (,) to separate scoreboard or leave empty to use default scoreboard',
@@ -237,7 +31,7 @@ exports.activate = function(context) {
 			scoreboard = value;
 		});
 
-		mathExpression(expression, scoreboard, (result, error) => {
+		instExp.mathExpression(expression, scoreboard, settings, (result, error) => {
 			if (error) {
 				vscode.window.showErrorMessage(error.message);
 			}
@@ -249,7 +43,65 @@ exports.activate = function(context) {
 				});
 			}
 		});
+	}));
 
+	disposable.push(vscode.commands.registerTextEditorCommand('extension.mc-math.eval', async (textEditor, edit) => {
+		let is_selection = false;
+		for (let selection of textEditor.selections) {
+			if (selection.start.compareTo(selection.end) < 0) {
+				is_selection = true
+			}
+		}
+		if (is_selection) {
+			for (let selection of textEditor.selections) {
+				if (selection.start.compareTo(selection.end) < 0) {
+					let textRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+					let expression = textEditor.document.getText(textRange);
+					await evalExp.eval(expression, (result, error) => {
+						if (error) vscode.window.showErrorMessage(error.message);
+						if (evalExp.isNumeric(result)) {
+							textEditor.edit(editBuilder => {
+								editBuilder.replace(textRange, result.toString());
+							});
+						}
+						else if (result.entries === null || result.entries === undefined) {
+							textEditor.edit(editBuilder => {
+								editBuilder.replace(textRange, result.toString());
+							});
+						}
+						else if (typeof result === 'object') {
+							let data = result.toJSON();
+							let format = [];
+							for (let i of data.entries) {
+								format.push(i.toString());
+							}
+							textEditor.edit(editBuilder => {
+								editBuilder.replace(textRange, format.join('\n'));
+							});
+						}
+					});
+				}
+			}
+		}
+		else {
+			let expression = '';
+			await vscode.window.showInputBox({
+				prompt: 'Math expression to evaluate',
+				placeHolder: '2 + 2 - 1 -> that\'s 3 quick maff!'
+			}).then(value => {
+				expression = value;
+			});
+			evalExp.eval(expression, (result, error) => {;
+				if (error) vscode.window.showErrorMessage(error.message);
+				textEditor.edit(editBuilder => {
+					for (let selection of textEditor.selections) {
+						if (typeof result === 'number') {
+							editBuilder.insert(selection.active, `${result}`);
+						}
+					}
+				});
+			});
+		}
 	}));
 
 	context.subscriptions.push(...disposable);
