@@ -1,3 +1,6 @@
+## 1.1.2
+Fix "Expression Evaluator only evaluate first selection of multi-selection mode"
+
 ## 1.1.1
 Added Expression Evaluator
 

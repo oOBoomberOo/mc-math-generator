@@ -53,21 +53,19 @@ exports.activate = function(context) {
 			}
 		}
 		if (is_selection) {
+			let replaceWith = [];
 			for (let selection of textEditor.selections) {
 				if (selection.start.compareTo(selection.end) < 0) {
 					let textRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
 					let expression = textEditor.document.getText(textRange);
+					
 					await evalExp.eval(expression, (result, error) => {
 						if (error) vscode.window.showErrorMessage(error.message);
 						if (evalExp.isNumeric(result)) {
-							textEditor.edit(editBuilder => {
-								editBuilder.replace(textRange, result.toString());
-							});
+							replaceWith.push({range: textRange, text: [result.toString()]});
 						}
 						else if (result.entries === null || result.entries === undefined) {
-							textEditor.edit(editBuilder => {
-								editBuilder.replace(textRange, result.toString());
-							});
+							replaceWith.push({range: textRange, text: [result.toString()]});
 						}
 						else if (typeof result === 'object') {
 							let data = result.toJSON();
@@ -75,13 +73,17 @@ exports.activate = function(context) {
 							for (let i of data.entries) {
 								format.push(i.toString());
 							}
-							textEditor.edit(editBuilder => {
-								editBuilder.replace(textRange, format.join('\n'));
-							});
+							replaceWith.push({range: textRange, text: format});
 						}
 					});
 				}
 			}
+				textEditor.edit(editBuilder => {			
+					for (let i = 0; i < replaceWith.length; i++) {
+						let ref = replaceWith[i];
+						editBuilder.replace(ref.range, ref.text.join('\n'));
+					}
+			});
 		}
 		else {
 			let expression = '';
